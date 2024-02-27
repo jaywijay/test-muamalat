@@ -2,8 +2,8 @@ package test.muamalat.demo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import test.muamalat.demo.model.PenumpangEntity;
+import test.muamalat.demo.model.TiketEntity;
 
-public interface PenumpangRepository extends JpaRepository<PenumpangEntity, Long> {
+public interface TiketRepository extends JpaRepository<TiketEntity, Long> {
     // Jika diperlukan, tambahkan metode kustom di sini
 }

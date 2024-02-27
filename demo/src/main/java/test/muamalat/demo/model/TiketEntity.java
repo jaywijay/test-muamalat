@@ -1,32 +1,44 @@
 package test.muamalat.demo.model;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
+import java.util.Date;
 
 @Entity
-public class Tiket {
+public class TiketEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "id_penumpang", nullable = false)
-    private Penumpang penumpang;
+    private PenumpangEntity penumpang;
 
     @ManyToOne
     @JoinColumn(name = "id_travel", nullable = false)
-    private Travel travel;
+    private TravelEntity travel;
 
-    @Column(nullable = false)
-    private LocalDateTime jadwal;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date jadwal;
+
+    public TiketEntity(Long id, PenumpangEntity penumpang, TravelEntity travel, Date jadwal) {
+        this.id = id;
+        this.penumpang = penumpang;
+        this.travel = travel;
+        this.jadwal = jadwal;
+    }
+
+    public TiketEntity() {
+        //TODO Auto-generated constructor stub
+    }
 
     public Long getId() {
         return id;
@@ -36,30 +48,29 @@ public class Tiket {
         this.id = id;
     }
 
-    public Penumpang getPenumpang() {
+    public PenumpangEntity getPenumpang() {
         return penumpang;
     }
 
-    public void setPenumpang(Penumpang penumpang) {
+    public void setPenumpang(PenumpangEntity penumpang) {
         this.penumpang = penumpang;
     }
 
-    public Travel getTravel() {
+    public TravelEntity getTravel() {
         return travel;
     }
 
-    public void setTravel(Travel travel) {
+    public void setTravel(TravelEntity travel) {
         this.travel = travel;
     }
 
-    public LocalDateTime getJadwal() {
+    public Date getJadwal() {
         return jadwal;
     }
 
-    public void setJadwal(LocalDateTime jadwal) {
+    public void setJadwal(Date jadwal) {
         this.jadwal = jadwal;
     }
 
     // Constructors, getters, and setters
 }
-

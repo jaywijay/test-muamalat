@@ -1,12 +1,15 @@
-// TravelService.java
 package test.muamalat.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import test.muamalat.demo.model.Travel;
+
+import test.muamalat.demo.model.TravelEntity;
 import test.muamalat.demo.repository.TravelRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TravelService {
@@ -14,42 +17,73 @@ public class TravelService {
     @Autowired
     private TravelRepository travelRepository;
 
-    public List<Travel> getAllTravel() {
-        return travelRepository.findAll();
+    public ResponseEntity<List<TravelEntity>> getAllTravels() {
+        List<TravelEntity> travels = travelRepository.findAll();
+        return new ResponseEntity<>(travels, HttpStatus.OK);
     }
 
-    public Travel getTravelById(Long id) {
-        return travelRepository.findById(id).orElse(null);
+    public ResponseEntity<TravelEntity> getTravelById(Long id) {
+        Optional<TravelEntity> travelOptional = travelRepository.findById(id);
+        return travelOptional.map(travel -> new ResponseEntity<>(travel, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public Travel createTravel(Travel travel) {
-        return travelRepository.save(travel);
-    }
+    public ResponseEntity<TravelEntity> createTravel(String namaSupir, String noTelp, String alamat, String noPolisi) {
+        // Validasi input (contoh: tidak boleh ada field yang kosong)
+        if (namaSupir.isEmpty() || noTelp.isEmpty() || alamat.isEmpty() || noPolisi.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
-    public Travel updateTravel(Long id, Travel updatedTravel) {
-        Travel existingTravel = travelRepository.findById(id).orElse(null);
+        TravelEntity travel = new TravelEntity();
+        travel.setNamaSupir(namaSupir);
+        travel.setNoTelp(noTelp);
+        travel.setAlamat(alamat);
+        travel.setNoPolisi(noPolisi);
 
-        if (existingTravel != null) {
-            existingTravel.setNamaSupir(updatedTravel.getNamaSupir());
-            existingTravel.setNoTelp(updatedTravel.getNoTelp());
-            existingTravel.setAlamat(updatedTravel.getAlamat());
-            existingTravel.setNoPolisi(updatedTravel.getNoPolisi());
-
-            return travelRepository.save(existingTravel);
-        } else {
-            return null; // Handle the case where the Travel with the given ID is not found
+        try {
+            TravelEntity savedTravel = travelRepository.save(travel);
+            return new ResponseEntity<>(savedTravel, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Penanganan error jika penyimpanan gagal
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public void deleteTravel(Long id) {
-        travelRepository.deleteById(id);
+    public ResponseEntity<TravelEntity> updateTravel(Long id, String namaSupir, String noTelp, String alamat, String noPolisi) {
+        Optional<TravelEntity> travelOptional = travelRepository.findById(id);
+
+        if (travelOptional.isPresent()) {
+            TravelEntity travel = travelOptional.get();
+
+            // Validasi input (contoh: tidak boleh ada field yang kosong)
+            if (namaSupir.isEmpty() || noTelp.isEmpty() || alamat.isEmpty() || noPolisi.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            travel.setNamaSupir(namaSupir);
+            travel.setNoTelp(noTelp);
+            travel.setAlamat(alamat);
+            travel.setNoPolisi(noPolisi);
+
+            try {
+                TravelEntity updatedTravel = travelRepository.save(travel);
+                return new ResponseEntity<>(updatedTravel, HttpStatus.OK);
+            } catch (Exception e) {
+                // Penanganan error jika penyimpanan gagal
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    public TravelRepository getTravelRepository() {
-        return travelRepository;
-    }
-
-    public void setTravelRepository(TravelRepository travelRepository) {
-        this.travelRepository = travelRepository;
+    public ResponseEntity<Void> deleteTravel(Long id) {
+        try {
+            travelRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            // Penanganan error jika penghapusan gagal
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
